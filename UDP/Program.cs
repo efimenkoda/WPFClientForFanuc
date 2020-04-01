@@ -12,27 +12,10 @@ namespace UDP
     {
         static void Main(string[] args)
         {
-            UdpClient recieve = new UdpClient(8000);
-            IPEndPoint iPEndPoint = null;
+            Server server = new Server(8000);
+            server.Recieve();
 
-            try
-            {
-
-                while (true)
-                {
-                    byte[] data = recieve.Receive(ref iPEndPoint);
-                    string message = Encoding.UTF8.GetString(data);
-                    Console.WriteLine(message);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            finally
-            {
-                recieve.Close();
-            }
+            
         }
     }
 }
