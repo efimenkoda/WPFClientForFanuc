@@ -1,0 +1,19 @@
+﻿<Window x:Class="WpfClientFanuc.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfClientFanuc"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="310.714" Width="447.767">
+    <Grid Margin="0,0,2,1">
+        <Button Content="Тест" HorizontalAlignment="Left" Margin="177,63,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click"/>
+        <Ellipse Name="circle" Fill="White" HorizontalAlignment="Left" Height="18" Margin="10,10,0,0" Stroke="Black" VerticalAlignment="Top" Width="18"/>
+        <ComboBox HorizontalAlignment="Left" Margin="41,63,0,0" VerticalAlignment="Top" Width="65" Name="ValuesDOut" SelectionChanged="ValuesDOut_SelectionChanged"/>
+        <Label Content="Digital Out" HorizontalAlignment="Left" Margin="41,32,0,0" VerticalAlignment="Top" Width="120"/>
+        <Label Name="ValueLabelDOUT" Content="" HorizontalAlignment="Left" Margin="111,63,0,0" VerticalAlignment="Top" Width="50"/>
+        <ProgressBar Name="Progress" HorizontalAlignment="Left" Height="13" Margin="28,136,0,0" VerticalAlignment="Top" Width="381" IsIndeterminate="True" Visibility="Hidden"/>
+        <Button Content="Изменить" Name="SetDOUT" HorizontalAlignment="Left" Margin="41,94,0,0" VerticalAlignment="Top" Width="120" Click="SetDOUT_Click"/>
+
+    </Grid>
+</Window>
