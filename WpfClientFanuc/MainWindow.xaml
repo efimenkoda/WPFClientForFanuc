@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="310.714" Width="447.767">
     <Grid Margin="0,0,2,1">
-        <Button Content="Тест" HorizontalAlignment="Left" Margin="177,63,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click"/>
+        <Button Content="Тест" HorizontalAlignment="Left" Margin="41,129,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click"/>
         <Ellipse Name="circle" Fill="White" HorizontalAlignment="Left" Height="18" Margin="10,10,0,0" Stroke="Black" VerticalAlignment="Top" Width="18"/>
-        <ComboBox HorizontalAlignment="Left" Margin="41,63,0,0" VerticalAlignment="Top" Width="65" Name="ValuesDOut" SelectionChanged="ValuesDOut_SelectionChanged"/>
+        <ComboBox HorizontalAlignment="Left" Margin="41,63,0,0" VerticalAlignment="Top" Width="65" Name="ValuesDOut" SelectionChanged="ValuesDOut_SelectionChanged" />
         <Label Content="Digital Out" HorizontalAlignment="Left" Margin="41,32,0,0" VerticalAlignment="Top" Width="120"/>
         <Label Name="ValueLabelDOUT" Content="" HorizontalAlignment="Left" Margin="111,63,0,0" VerticalAlignment="Top" Width="50"/>
         <ProgressBar Name="Progress" HorizontalAlignment="Left" Height="13" Margin="28,136,0,0" VerticalAlignment="Top" Width="381" IsIndeterminate="True" Visibility="Hidden"/>

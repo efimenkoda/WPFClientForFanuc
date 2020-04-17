@@ -39,10 +39,10 @@ namespace WpfClientFanuc
             digitalOUT = new DigitalOUT(robot);
         }
 
+
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             
-
             bool result=false;
             if (digitalOUT[Convert.ToInt32(ValuesDOut.SelectedItem)] == false)
             {
