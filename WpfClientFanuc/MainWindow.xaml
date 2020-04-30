@@ -7,7 +7,7 @@
         
         mc:Ignorable="d"
         Title="MainWindow" Height="310.714" Width="600.767">
-    <Grid Margin="0,0,0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ShowGridLines="False"  >
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ShowGridLines="False"  >
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
@@ -17,14 +17,21 @@
             <ColumnDefinition Width="*"></ColumnDefinition>            
         </Grid.ColumnDefinitions>
         <Canvas Grid.Row="0" Grid.Column="1">
-        <StackPanel  Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <Label>IP address:</Label>
-                <TextBox Text="{Binding Connect.IPaddress}"></TextBox>
-                <Button Content="Подключиться" Width="auto" Command="{Binding ConnectCommand}" />
-        </StackPanel>
+            <StackPanel Orientation="Horizontal">        
+            <Label >IP address:</Label>
+            <TextBox Text="{Binding Connect.IPaddress}" Width="100"></TextBox>
+                <Button Content="Подключиться" Command="{Binding ConnectCommand}" />
+            </StackPanel>
+                
+           
         </Canvas>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1">
+
+            <Button Content="Изменить" />
+        </StackPanel>
         <StackPanel Orientation="Vertical"  Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
-            <ComboBox Name="ComboBoxIO">                
+            <ComboBox Name="ComboBoxIO" ItemsSource="{Binding ListTypeIO}">
+                
             </ComboBox>
             <ListView x:Name="ListIO" ItemsSource="{Binding Signals}" Height="250"  >
                 <ListView.View>
@@ -40,5 +47,6 @@
                 </ListView.View>
             </ListView>
         </StackPanel>
+        
     </Grid>
 </Window>

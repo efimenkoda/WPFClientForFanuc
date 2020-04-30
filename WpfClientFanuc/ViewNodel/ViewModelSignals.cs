@@ -16,8 +16,21 @@ namespace WpfClientFanuc
         private RelayCommand connectCommand;
         public ConnectionToFanuc Connect { get; private set; }
         public ObservableCollection<IOSignals> Signals { get; set; }
+        public List<string> ListTypeIO { get; set; }
         public ViewModelSignals()
         {
+            ListTypeIO = new List<string>();
+
+            ListTypeIO.Add("DIN");
+            ListTypeIO.Add("DOUT");
+            ListTypeIO.Add("UI");
+            ListTypeIO.Add("UO");
+            ListTypeIO.Add("SI");
+            ListTypeIO.Add("SO");
+            ListTypeIO.Add("RI");
+            ListTypeIO.Add("RO");
+            ListTypeIO.Add("FLG");
+
             Connect = new ConnectionToFanuc();
             Signals = new ObservableCollection<IOSignals>();
         }

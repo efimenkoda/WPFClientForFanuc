@@ -56,8 +56,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="IOSignals.cs" />
-    <Compile Include="RelayCommand.cs" />
+    <Compile Include="Model\IOSignals.cs" />
+    <Compile Include="ViewNodel\RelayCommand.cs" />
     <Compile Include="ViewNodel\ViewModelSignals.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
