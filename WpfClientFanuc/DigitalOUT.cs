@@ -20,7 +20,6 @@ namespace WpfClientFanuc
         {
             get
             {
-
                 try
                 {
                     FRCDigitalIOType dioType = (FRCDigitalIOType)robot.IOTypes[FREIOTypeConstants.frDOutType];

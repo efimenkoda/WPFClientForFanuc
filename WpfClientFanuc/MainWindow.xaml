@@ -4,16 +4,41 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfClientFanuc"
+        
         mc:Ignorable="d"
-        Title="MainWindow" Height="310.714" Width="447.767">
-    <Grid Margin="0,0,2,1">
-        <Button Content="Тест" HorizontalAlignment="Left" Margin="41,129,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click"/>
-        <Ellipse Name="circle" Fill="White" HorizontalAlignment="Left" Height="18" Margin="10,10,0,0" Stroke="Black" VerticalAlignment="Top" Width="18"/>
-        <ComboBox HorizontalAlignment="Left" Margin="41,63,0,0" VerticalAlignment="Top" Width="65" Name="ValuesDOut" SelectionChanged="ValuesDOut_SelectionChanged" />
-        <Label Content="Digital Out" HorizontalAlignment="Left" Margin="41,32,0,0" VerticalAlignment="Top" Width="120"/>
-        <Label Name="ValueLabelDOUT" Content="" HorizontalAlignment="Left" Margin="111,63,0,0" VerticalAlignment="Top" Width="50"/>
-        <ProgressBar Name="Progress" HorizontalAlignment="Left" Height="13" Margin="28,136,0,0" VerticalAlignment="Top" Width="381" IsIndeterminate="True" Visibility="Hidden"/>
-        <Button Content="Изменить" Name="SetDOUT" HorizontalAlignment="Left" Margin="41,94,0,0" VerticalAlignment="Top" Width="120" Click="SetDOUT_Click"/>
-
+        Title="MainWindow" Height="310.714" Width="600.767">
+    <Grid Margin="0,0,0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ShowGridLines="False"  >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>            
+        </Grid.ColumnDefinitions>
+        <Canvas Grid.Row="0" Grid.Column="1">
+        <StackPanel  Orientation="Horizontal" HorizontalAlignment="Stretch">
+                <Label>IP address:</Label>
+                <TextBox Text="{Binding Connect.IPaddress}"></TextBox>
+                <Button Content="Подключиться" Width="auto" Command="{Binding ConnectCommand}" />
+        </StackPanel>
+        </Canvas>
+        <StackPanel Orientation="Vertical"  Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
+            <ComboBox Name="ComboBoxIO">                
+            </ComboBox>
+            <ListView x:Name="ListIO" ItemsSource="{Binding Signals}" Height="250"  >
+                <ListView.View>
+                    <GridView>
+                        <GridView.Columns>
+                            <GridViewColumn DisplayMemberBinding="{Binding NumberIO}" Width="100"  Header="Тип сигнала"/>
+                            
+                                
+                            
+                            <GridViewColumn DisplayMemberBinding="{Binding Status}" Width="100"  Header="Статус"/>
+                        </GridView.Columns>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
     </Grid>
 </Window>

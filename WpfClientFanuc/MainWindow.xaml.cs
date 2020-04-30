@@ -23,62 +23,20 @@ namespace WpfClientFanuc
     /// </summary>
     public partial class MainWindow : Window
     {
-        MoveTestFanuc testFanuc = new MoveTestFanuc();
-        FRCRobot robot;
-        DigitalOUT digitalOUT;
+        
+
         public MainWindow()
         {
             InitializeComponent();
-            Counter counter = new Counter();
-            List<int> list = new List<int>();
-            list.AddRange(counter.GetValues(81, 84));
-            list.AddRange(counter.GetValues(101, 108));
-            ValuesDOut.ItemsSource = list;
-            
-            robot=testFanuc.ConnectFanuc();
-            digitalOUT = new DigitalOUT(robot);
-        }
-
-
-        private async void Button_Click(object sender, RoutedEventArgs e)
-        {
-            
-            bool result=false;
-            if (digitalOUT[Convert.ToInt32(ValuesDOut.SelectedItem)] == false)
-            {
-                Progress.Visibility = Visibility.Visible;
-                circle.Fill = Brushes.Red;
-                digitalOUT[Convert.ToInt32(ValuesDOut.SelectedItem)] = true;
-                int index =Convert.ToInt32(ValuesDOut.SelectedItem);
-                result=await digitalOUT.Wait(index);
-                ValueLabelDOUT.Content = result.ToString();
-                circle.Fill = Brushes.Green; 
-            }
-            else
-            {
-                circle.Fill = Brushes.Red;
-            }
-
-            Progress.Visibility = Visibility.Hidden;
-        }
-
-
-        private void ValuesDOut_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ValueLabelDOUT.Content = digitalOUT[Convert.ToInt32(ValuesDOut.SelectedItem)];
-        }
-
-        private void SetDOUT_Click(object sender, RoutedEventArgs e)
-        {
-            if(digitalOUT[Convert.ToInt32(ValuesDOut.SelectedItem)]==true)
-            {
-                digitalOUT[Convert.ToInt32(ValuesDOut.SelectedItem)] = true;
-            }
-            else
-            {
-                digitalOUT[Convert.ToInt32(ValuesDOut.SelectedItem)] = false;
-            }
+            DataContext =new  ViewModelSignals();
             
         }
+
+
+        
+
+
+
+       
     }
 }
