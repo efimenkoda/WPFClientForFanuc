@@ -24,12 +24,16 @@ namespace WpfClientFanuc
             IPaddress = ConfigurationManager.AppSettings["IPaddressFanuc"];
         }
 
+        
+
         public void ConnectFanuc()
         {
             try
             {
                 robot.Connect(IPaddress);
                 
+                //MessageBox.Show("Fanuc to Connect!");
+
             }
             catch (Exception e)
             {

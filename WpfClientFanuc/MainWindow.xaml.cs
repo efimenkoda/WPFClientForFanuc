@@ -33,10 +33,5 @@ namespace WpfClientFanuc
         }
 
 
-        
-
-
-
-       
     }
 }

@@ -4,49 +4,59 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfClientFanuc"
-        
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d"
-        Title="MainWindow" Height="310.714" Width="600.767">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ShowGridLines="False"  >
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
+        Title="MainWindow" Height="342.714" Width="645.767">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="listIO" ObjectType="{x:Type local:ViewModelSignals}" MethodName="GetListIO">
+        </ObjectDataProvider>
+    </Window.Resources>
+    
+    <Grid  ShowGridLines="false" >
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>            
+            <ColumnDefinition Width="Auto" ></ColumnDefinition>
+            <ColumnDefinition Width="*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Canvas Grid.Row="0" Grid.Column="1">
-            <StackPanel Orientation="Horizontal">        
-            <Label >IP address:</Label>
-            <TextBox Text="{Binding Connect.IPaddress}" Width="100"></TextBox>
-                <Button Content="Подключиться" Command="{Binding ConnectCommand}" />
-            </StackPanel>
-                
-           
-        </Canvas>
-        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1">
 
-            <Button Content="Изменить" />
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Width="auto" Margin="5,5,5,5">
+            <GroupBox Header="Подключение к роботу" Padding="5">
+                <StackPanel Orientation="Horizontal"  Width="auto" >
+                    <Label >Fanuc IP address:</Label>
+                    <TextBox Text="{Binding Connect.IPaddress}" Width="100" Margin="5,5,5,5"/>
+                    <Button Content="{Binding BtnConnectContent}" Command="{Binding ConnectCommand}" Margin="5,5,5,5"/>
+                </StackPanel>
+            </GroupBox>
         </StackPanel>
-        <StackPanel Orientation="Vertical"  Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
-            <ComboBox Name="ComboBoxIO" ItemsSource="{Binding ListTypeIO}">
-                
+
+        <GroupBox Header="Состояние сигналов робота" Margin="5,5,5,5"  Grid.Row="0" Grid.Column="0">
+        <DockPanel LastChildFill="False"  >           
+            <ComboBox DockPanel.Dock="Top"  x:Name="TypeIO" ItemsSource="{Binding ListTypeIO}" SelectedValue="Value" DisplayMemberPath="Key" 
+                           SelectedIndex="1"  Margin="6,5,4,5" >
+                <!--<i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectItemTypeIO}"></i:InvokeCommandAction>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>-->
             </ComboBox>
-            <ListView x:Name="ListIO" ItemsSource="{Binding Signals}" Height="250"  >
+            <ListView DockPanel.Dock="Top"  VerticalContentAlignment="Stretch" ItemsSource="{Binding Signals}" Margin="5,5,5,5" >
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="VerticalContentAlignment" Value="Stretch"></Setter>
+                        <Setter Property="ScrollViewer.VerticalContentAlignment" Value="Stretch"></Setter>
+                        <!--<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"></Setter>-->
+                        <!--<Setter Property="ScrollViewer.Visibility" Value="Visible"></Setter>-->
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
-                        <GridView.Columns>
-                            <GridViewColumn DisplayMemberBinding="{Binding NumberIO}" Width="100"  Header="Тип сигнала"/>
-                            
-                                
-                            
-                            <GridViewColumn DisplayMemberBinding="{Binding Status}" Width="100"  Header="Статус"/>
-                        </GridView.Columns>
+                        <GridViewColumn DisplayMemberBinding="{Binding NumberIO}" Width="100" Header="Номер сигнала"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding Status}" Width="100"  Header="Статус"/>
                     </GridView>
                 </ListView.View>
             </ListView>
-        </StackPanel>
-        
+            
+            <Button DockPanel.Dock="Bottom" Content="Изменить" Command="{Binding LoadIOCommand}"  Margin="5,5,5,5" />            
+        </DockPanel>
+        </GroupBox>
     </Grid>
 </Window>
