@@ -63,6 +63,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\IOSignals.cs" />
+    <Compile Include="ViewNodel\CurrentPosition.cs" />
     <Compile Include="ViewNodel\RelayCommand.cs" />
     <Compile Include="ViewNodel\ViewModelSignals.cs" />
     <Page Include="MainWindow.xaml">

@@ -8,7 +8,11 @@ namespace WpfClientFanuc
 {
     public class IOSignals
     {
-        public string NumberIO { get; set; }
+        public int NumberIO { get; set; }
         public bool Status { get; set; }
+        public string Comment { get; set; }
+        
+
+
     }
 }

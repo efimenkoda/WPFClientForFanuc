@@ -4,59 +4,120 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfClientFanuc"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"  
         mc:Ignorable="d"
-        Title="MainWindow" Height="342.714" Width="645.767">
+        Title="Fanuc" Height="352.714" Width="736.767">
     <Window.Resources>
         <ObjectDataProvider x:Key="listIO" ObjectType="{x:Type local:ViewModelSignals}" MethodName="GetListIO">
         </ObjectDataProvider>
+
+        <Style TargetType="TextBox" x:Name="TextBoxStyle">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
     </Window.Resources>
-    
-    <Grid  ShowGridLines="false" >
+
+    <Grid ShowGridLines="false" Margin="0,0,-8,0" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" ></ColumnDefinition>
             <ColumnDefinition Width="*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Width="auto" Margin="5,5,5,5">
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Width="auto" Margin="5,5,19,5">
             <GroupBox Header="Подключение к роботу" Padding="5">
                 <StackPanel Orientation="Horizontal"  Width="auto" >
-                    <Label >Fanuc IP address:</Label>
-                    <TextBox Text="{Binding Connect.IPaddress}" Width="100" Margin="5,5,5,5"/>
-                    <Button Content="{Binding BtnConnectContent}" Command="{Binding ConnectCommand}" Margin="5,5,5,5"/>
+                    <Label>IP адрес робота:</Label>
+                    <TextBox x:Name="TextIPaddress" Text="{Binding Connect.IPaddress}" Width="100" Margin="5,5,5,5"/>
+                    <Button x:Name="BtnConnect" Content="Подключить" Command="{Binding ConnectCommand}" 
+                            CommandParameter="{Binding ElementName=TextIPaddress, Path=Text}" Margin="5,5,5,5"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Текущие координаты"  Padding="5">
+                <StackPanel Orientation="Vertical"  >
+                    <WrapPanel Margin="5">
+                        <Label>X:</Label>
+                        <TextBox x:Name="Xcoor" Width="60" Text="{Binding curPosition.X}" ></TextBox>
+                        <Label>Y:</Label>
+                        <TextBox x:Name="Ycoor" Width="60" Text="{Binding curPosition.Y}"></TextBox>
+                        <Label>Z:</Label>
+                        <TextBox x:Name="Zcoor" Width="60" Text="{Binding curPosition.Z}"></TextBox>
+                    </WrapPanel>
+                    <WrapPanel Margin="5">
+                        <Label>R:</Label>
+                        <TextBox x:Name="Rcoor" Width="60" Text="{Binding curPosition.R}"></TextBox>
+                        <Label>P:</Label>
+                        <TextBox x:Name="Pcoor" Width="60" Text="{Binding curPosition.P}"></TextBox>
+                        <Label>W:</Label>
+                        <TextBox x:Name="Wcoor" Width="60" Text="{Binding curPosition.W}"></TextBox>
+                    </WrapPanel>
                 </StackPanel>
             </GroupBox>
         </StackPanel>
 
-        <GroupBox Header="Состояние сигналов робота" Margin="5,5,5,5"  Grid.Row="0" Grid.Column="0">
-        <DockPanel LastChildFill="False"  >           
-            <ComboBox DockPanel.Dock="Top"  x:Name="TypeIO" ItemsSource="{Binding ListTypeIO}" SelectedValue="Value" DisplayMemberPath="Key" 
-                           SelectedIndex="1"  Margin="6,5,4,5" >
-                <!--<i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SelectionChanged">
-                        <i:InvokeCommandAction Command="{Binding SelectItemTypeIO}"></i:InvokeCommandAction>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>-->
-            </ComboBox>
-            <ListView DockPanel.Dock="Top"  VerticalContentAlignment="Stretch" ItemsSource="{Binding Signals}" Margin="5,5,5,5" >
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="VerticalContentAlignment" Value="Stretch"></Setter>
-                        <Setter Property="ScrollViewer.VerticalContentAlignment" Value="Stretch"></Setter>
-                        <!--<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"></Setter>-->
-                        <!--<Setter Property="ScrollViewer.Visibility" Value="Visible"></Setter>-->
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn DisplayMemberBinding="{Binding NumberIO}" Width="100" Header="Номер сигнала"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Status}" Width="100"  Header="Статус"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-            
-            <Button DockPanel.Dock="Bottom" Content="Изменить" Command="{Binding LoadIOCommand}"  Margin="5,5,5,5" />            
-        </DockPanel>
+        <GroupBox Header="Состояние сигналов робота" Margin="5,5,5,5"  Grid.Column="0" Grid.Row="0" >
+            <Grid>
+                <Grid.RowDefinitions >
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <ComboBox DockPanel.Dock="Top" x:Name="TypeIO" ItemsSource="{Binding ListTypeIO,Mode=TwoWay}" 
+                          SelectedValue="Value" DisplayMemberPath="Key" SelectedIndex="1"  Margin="5,5,5,5" Grid.Row="0" >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding SelectItemTypeIO}"
+                                                   CommandParameter="{Binding ElementName=TypeIO,Path=SelectedValue}"></i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+
+                <ListView Grid.Row="1"  x:Name="ListItemIO" x:FieldModifier="public" ItemsSource="{Binding Signals,Mode=TwoWay}" Margin="5,5,5,5" >
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn DisplayMemberBinding="{Binding NumberIO}" Width="50" Header="Номер"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding Status}" Width="100"  Header="Статус"/>
+                                <!--<GridViewColumn Header="Статус" Width="100">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox x:Name="check"  IsChecked="{Binding ElementName=Status,Path=IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                      Content="{Binding Status}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="ToggleButton.Checked">
+                                                        <i:InvokeCommandAction Command="{Binding SetItemIO}">
+
+                                                        </i:InvokeCommandAction>
+                                                    </i:EventTrigger>
+                                                    <i:EventTrigger EventName="Unchecked">
+                                                        <i:InvokeCommandAction  Command="{Binding SetItemIO}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>-->
+
+                                <GridViewColumn DisplayMemberBinding="{Binding Comment}" Width="100"  Header="Команда"/>
+                            </GridView.Columns>
+
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <Button Grid.Row="2" Content="Изменить" Command="{Binding SetItemIO}" 
+                    CommandParameter="{Binding ElementName=TypeIO, Path=SelectedValue}" Margin="5,5,5,5" />
+            </Grid>
         </GroupBox>
+
     </Grid>
 </Window>

@@ -32,15 +32,14 @@ namespace WpfClientFanuc
             {
                 robot.Connect(IPaddress);
                 
-                //MessageBox.Show("Fanuc to Connect!");
 
             }
             catch (Exception e)
             {
-                MessageBox.Show("Error: " + e.Message);
+                MessageBox.Show("Error connection: " + e.Message);
                 
             }
-
+            
         }
 
 
