@@ -12,8 +12,8 @@ namespace WpfClientFanuc
     public class CurrentPosition: INotifyPropertyChanged
     {
         private FRCRobot robot;
-        private string x;
-        public string X { 
+        private double x;
+        public double X { 
             get
             {
                 return x;
@@ -24,8 +24,8 @@ namespace WpfClientFanuc
                 PropertyChanged(this, new PropertyChangedEventArgs("X"));
             }
         }
-        private string y;
-        public string Y
+        private double y;
+        public double Y
         {
             get
             {
@@ -37,8 +37,8 @@ namespace WpfClientFanuc
                 PropertyChanged(this, new PropertyChangedEventArgs("Y"));
             }
         }
-        private string z;
-        public string Z
+        private double z;
+        public double Z
         {
             get
             {
@@ -51,8 +51,8 @@ namespace WpfClientFanuc
             }
         }
 
-        private string w;
-        public string W
+        private double w;
+        public double W
         {
             get
             {
@@ -65,8 +65,8 @@ namespace WpfClientFanuc
             }
         }
 
-        private string p;
-        public string P
+        private double p;
+        public double P
         {
             get
             {
@@ -79,8 +79,8 @@ namespace WpfClientFanuc
             }
         }
 
-        private string r;
-        public string R
+        private double r;
+        public double R
         {
             get
             {
@@ -118,14 +118,13 @@ namespace WpfClientFanuc
                 FRCCurGroupPosition groupCurPosition = curPositions.Group[1,FRECurPositionConstants.frJointDisplayType];
                 FRCXyzWpr xyzWprCur = groupCurPosition.Formats[FRETypeCodeConstants.frExtXyzWpr];
 
-                X = xyzWprCur.X.ToString();
-                Y = xyzWprCur.Y.ToString();
-                Z = xyzWprCur.Z.ToString();
-                P = xyzWprCur.P.ToString();
-                R = xyzWprCur.R.ToString();
-                W = xyzWprCur.W.ToString();
-                //MessageBox.Show(xyzWprCur.X.ToString() + " " + xyzWprCur.Y.ToString() + " " + xyzWprCur.Z.ToString() +
-                //                " " + xyzWprCur.P.ToString() + " " + xyzWprCur.R.ToString() + " " + xyzWprCur.W.ToString());
+                X = Math.Round(xyzWprCur.X,3);
+                Y = Math.Round(xyzWprCur.Y,3);
+                Z = Math.Round(xyzWprCur.Z, 3);
+                P = Math.Round(xyzWprCur.P, 3);
+                R = Math.Round(xyzWprCur.R, 3);
+                W = Math.Round(xyzWprCur.W, 3);
+                
             }
         }
     }

@@ -23,10 +23,26 @@ namespace WpfClientFanuc
         FRCRobot robot;
         private RelayCommand connectCommand;
         private RelayCommand selectItemTypeIO;
+        private string btnTextConnect;
+        public string BtnTextConnect
+        {
+            get
+            {
+                if(btnTextConnect==null)
+                    btnTextConnect = "Подключить";
+                return btnTextConnect;
+            }
+            set
+            {
+                btnTextConnect = value;
+                PropertyChanged(this, new PropertyChangedEventArgs("BtnTextConnect"));
+            }
+        }
+        
         public CurrentPosition curPosition { get; set; }
         public ConnectionToFanuc Connect { get; private set; }
         public ObservableCollection<IOSignals> Signals { get; set; }
-        
+
         //public ObservableCollection<IOSignals> Signals {
         //    get
         //    {
@@ -35,7 +51,7 @@ namespace WpfClientFanuc
         //        set
         //    {
         //        signals = value;
-        //        //OnPropertyChanged("Signals");
+        //        PropertyChanged(this, new PropertyChangedEventArgs("Signals"));
         //    }
         //}
         public Dictionary<string, FREIOTypeConstants> listTypeIO;
@@ -72,10 +88,10 @@ namespace WpfClientFanuc
             curPosition = new CurrentPosition(Connect.robot);
         }
 
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        //protected void OnPropertyChanged(string propertyName)
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //}
         private void SetSignalsIO(FRCRobot robot, FREIOTypeConstants ioTypeConstant, long index, bool value)
         {
             try
@@ -137,7 +153,7 @@ namespace WpfClientFanuc
                             foreach (FRCDigitalIOSignal item in dioTypeIn.Signals)
                             {
                                 item.StartMonitor(1);
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment });
+                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants=ioTypeConstant });
                             }
                             break;
                         //UI UO
@@ -147,7 +163,7 @@ namespace WpfClientFanuc
                             foreach (FRCUOPIOSignal item in TypeUO.Signals)
                             {
                                 item.StartMonitor(1);
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment });
+                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
                             }
                             break;
                         //SI SO
@@ -156,7 +172,7 @@ namespace WpfClientFanuc
                             FRCSOPIOType TypeSO = (FRCSOPIOType)robot.IOTypes[ioTypeConstant];
                             foreach (FRCSOPIOSignal item in TypeSO.Signals)
                             {
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment });
+                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
                             }
                             break;
                         //FLAG
@@ -164,7 +180,7 @@ namespace WpfClientFanuc
                             FRCFlagType TypeFlag = (FRCFlagType)robot.IOTypes[ioTypeConstant];
                             foreach (FRCFlagSignal item in TypeFlag.Signals)
                             {
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment });
+                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
                             }
                             break;
                         //GI GO
@@ -188,7 +204,7 @@ namespace WpfClientFanuc
                             FRCRobotIOType TypeRI = (FRCRobotIOType)robot.IOTypes[ioTypeConstant];
                             foreach (FRCRobotIOSignal item in TypeRI.Signals)
                             {
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment });
+                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
                             }
                             break;
                     }
@@ -218,7 +234,8 @@ namespace WpfClientFanuc
 
                             if (robot.IsConnected)
                             {
-                                Form.BtnConnect.Content = "Подключено";
+                                BtnTextConnect = "Подключено";
+                                //Form.BtnConnect.Content = "Подключено";
                                 GetSignalsIO(robot, FREIOTypeConstants.frDOutType);                                
                                 curPosition.GetCurPosition();
                                 
@@ -270,10 +287,20 @@ namespace WpfClientFanuc
                         {
                             if (robot.IsConnected)
                             {
-                                IOSignals selectedIO = Form.ListItemIO.SelectedItem as IOSignals;
-                                KeyValuePair<string, FREIOTypeConstants> selectedTypeIO = (KeyValuePair<string, FREIOTypeConstants>)obj;
-                                SetSignalsIO(robot, selectedTypeIO.Value, selectedIO.NumberIO, !selectedIO.Status);
-                                GetSignalsIO(robot, selectedTypeIO.Value);
+                                //IOSignals selectedIO = Form.ListItemIO.SelectedItem as IOSignals;
+                                int numberIO = (int)obj;
+                                //KeyValuePair<string, FREIOTypeConstants> selectedTypeIO = (KeyValuePair<string, FREIOTypeConstants>)obj;
+                                foreach (var item in Signals)
+                                {
+                                    if(item.NumberIO==numberIO)
+                                    {
+                                        SetSignalsIO(robot, item.TypeConstants, item.NumberIO, item.Status);
+                                        GetSignalsIO(robot, item.TypeConstants);
+                                        break;
+                                    }
+                                }
+                                //SetSignalsIO(robot, selectedTypeIO.Value, selectedIO.NumberIO, !selectedIO.Status);
+                                //GetSignalsIO(robot, selectedTypeIO.Value);
                             }
 
                         }

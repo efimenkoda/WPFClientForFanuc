@@ -32,7 +32,7 @@
                 <StackPanel Orientation="Horizontal"  Width="auto" >
                     <Label>IP адрес робота:</Label>
                     <TextBox x:Name="TextIPaddress" Text="{Binding Connect.IPaddress}" Width="100" Margin="5,5,5,5"/>
-                    <Button x:Name="BtnConnect" Content="Подключить" Command="{Binding ConnectCommand}" 
+                    <Button x:Name="BtnConnect"  Content="{Binding BtnTextConnect}" Command="{Binding ConnectCommand}" 
                             CommandParameter="{Binding ElementName=TextIPaddress, Path=Text}" Margin="5,5,5,5"/>
                 </StackPanel>
             </GroupBox>
@@ -55,7 +55,7 @@
                         <TextBox x:Name="Wcoor" Width="60" Text="{Binding curPosition.W}"></TextBox>
                     </WrapPanel>
                 </StackPanel>
-            </GroupBox>
+            </GroupBox>            
         </StackPanel>
 
         <GroupBox Header="Состояние сигналов робота" Margin="5,5,5,5"  Grid.Column="0" Grid.Row="0" >
@@ -76,7 +76,7 @@
                     </i:Interaction.Triggers>
                 </ComboBox>
 
-                <ListView Grid.Row="1"  x:Name="ListItemIO" x:FieldModifier="public" ItemsSource="{Binding Signals,Mode=TwoWay}" Margin="5,5,5,5" >
+                <ListView Grid.Row="1"  x:Name="ListItemIO" x:FieldModifier="public" ItemsSource="{Binding Path=Signals,Mode=TwoWay}" Margin="5,5,5,5" >
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
@@ -85,37 +85,37 @@
                     <ListView.View>
                         <GridView>
                             <GridView.Columns>
-                                <GridViewColumn DisplayMemberBinding="{Binding NumberIO}" Width="50" Header="Номер"/>
-                                <GridViewColumn DisplayMemberBinding="{Binding Status}" Width="100"  Header="Статус"/>
-                                <!--<GridViewColumn Header="Статус" Width="100">
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=NumberIO}" Width="50" Header="Номер"/>
+                                <!--<GridViewColumn DisplayMemberBinding="{Binding Status}" Width="100"  Header="Статус"/>-->
+                                <GridViewColumn Header="Статус" Width="100">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="check"  IsChecked="{Binding ElementName=Status,Path=IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                      Content="{Binding Status}">
+                                            <CheckBox x:Name="check"  IsChecked="{Binding Path=Status}" 
+                                                      Content="{Binding Path=Status}">
                                                 <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="ToggleButton.Checked">
-                                                        <i:InvokeCommandAction Command="{Binding SetItemIO}">
+                                                    <i:EventTrigger EventName="Checked">
+                                                        <i:InvokeCommandAction Command="{Binding ElementName=ListItemIO, Path=DataContext.SetItemIO}"
+                                                                               CommandParameter="{Binding NumberIO}">
 
                                                         </i:InvokeCommandAction>
                                                     </i:EventTrigger>
                                                     <i:EventTrigger EventName="Unchecked">
-                                                        <i:InvokeCommandAction  Command="{Binding SetItemIO}" />
+                                                        <i:InvokeCommandAction  Command="{Binding ElementName=ListItemIO, Path=DataContext.SetItemIO}"
+                                                                                CommandParameter="{Binding NumberIO}"/>
                                                     </i:EventTrigger>
                                                 </i:Interaction.Triggers>
                                             </CheckBox>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
-                                </GridViewColumn>-->
+                                </GridViewColumn>
 
-                                <GridViewColumn DisplayMemberBinding="{Binding Comment}" Width="100"  Header="Команда"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=Comment}" Width="100"  Header="Команда"/>
                             </GridView.Columns>
 
                         </GridView>
                     </ListView.View>
                 </ListView>
 
-                <Button Grid.Row="2" Content="Изменить" Command="{Binding SetItemIO}" 
-                    CommandParameter="{Binding ElementName=TypeIO, Path=SelectedValue}" Margin="5,5,5,5" />
             </Grid>
         </GroupBox>
 

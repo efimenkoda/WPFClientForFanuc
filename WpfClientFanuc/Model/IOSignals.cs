@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FRRobot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace WpfClientFanuc
         public bool Status { get; set; }
         public string Comment { get; set; }
         
+        public FREIOTypeConstants TypeConstants { get; set; }
 
 
     }
