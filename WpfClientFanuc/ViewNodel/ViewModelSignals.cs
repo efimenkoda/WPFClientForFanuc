@@ -14,21 +14,32 @@ using System.ComponentModel;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
 using WpfClientFanuc;
+using System.Timers;
+using System.Threading;
+using System.Windows.Threading;
+using System.Collections.Specialized;
+
 
 namespace WpfClientFanuc
 {
+
     public class ViewModelSignals : INotifyPropertyChanged
     {
-        MainWindow Form = Application.Current.Windows[0] as MainWindow;
-        FRCRobot robot;
+        private FRCRobot robot;
+        //выбранный текущий тип сигнала
+        private FREIOTypeConstants ioTypeConstant;
         private RelayCommand connectCommand;
         private RelayCommand selectItemTypeIO;
+        private RelayCommand inputIPAddress;
         private string btnTextConnect;
+        /// <summary>
+        /// кнопка подключения к роботу
+        /// </summary>
         public string BtnTextConnect
         {
             get
             {
-                if(btnTextConnect==null)
+                if (btnTextConnect == null)
                     btnTextConnect = "Подключить";
                 return btnTextConnect;
             }
@@ -38,26 +49,18 @@ namespace WpfClientFanuc
                 PropertyChanged(this, new PropertyChangedEventArgs("BtnTextConnect"));
             }
         }
-        
-        public CurrentPosition curPosition { get; set; }
+
+        public CurrentPosition CurPosition { get; set; }
         public ConnectionToFanuc Connect { get; private set; }
+
         public ObservableCollection<IOSignals> Signals { get; set; }
 
-        //public ObservableCollection<IOSignals> Signals {
-        //    get
-        //    {
-        //        return signals;
-        //    }
-        //        set
-        //    {
-        //        signals = value;
-        //        PropertyChanged(this, new PropertyChangedEventArgs("Signals"));
-        //    }
-        //}
         public Dictionary<string, FREIOTypeConstants> listTypeIO;
         private RelayCommand setItemIO;
 
         public event PropertyChangedEventHandler PropertyChanged;
+        private DispatcherTimer timer;
+        private RelayCommand curPos;
 
         public Dictionary<string, FREIOTypeConstants> ListTypeIO
         {
@@ -83,19 +86,39 @@ namespace WpfClientFanuc
         }
         public ViewModelSignals()
         {
-            Connect = new ConnectionToFanuc();            
+
+            timer = new DispatcherTimer();
+            timer.Tick += new EventHandler(timer_Tick1);
+            timer.Interval = new TimeSpan(0, 0, 1);            
+
+            Connect = new ConnectionToFanuc();
             Signals = new ObservableCollection<IOSignals>();
-            curPosition = new CurrentPosition(Connect.robot);
+            CurPosition = new CurrentPosition(Connect.robot);
+
+        }
+        /// <summary>
+        /// Асинхронный вызов метода GetSignalsIO каждую секунду.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void timer_Tick1(object sender, EventArgs e)
+        {
+            await GetSignalsIO(robot, ioTypeConstant);
         }
 
-        //protected void OnPropertyChanged(string propertyName)
-        //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        //}
-        private void SetSignalsIO(FRCRobot robot, FREIOTypeConstants ioTypeConstant, long index, bool value)
+  
+        /// <summary>
+        /// Метод изменения значения сигнала
+        /// </summary>
+        /// <param name="robot">экземпляр подключения к роботу</param>
+        /// <param name="ioTypeConstant">константа типа сигнала</param>
+        /// <param name="index">индекс сигнала, значение которое нужно изменить</param>
+        /// <param name="value">новое значение сигнала</param>
+        private async void SetSignalsIO(FRCRobot robot, FREIOTypeConstants ioTypeConstant, long index, bool value)
         {
             try
             {
+
                 if (robot.IsConnected)
                 {
                     switch (ioTypeConstant)
@@ -117,7 +140,7 @@ namespace WpfClientFanuc
                             FRCSOPIOSignal sop = (FRCSOPIOSignal)((FRCSOPIOType)robot.IOTypes[ioTypeConstant]).Signals[index];
                             sop.Value = value;
                             sop.Update();
-                            break;                        
+                            break;
                         case FREIOTypeConstants.frFlagType:
                             FRCFlagSignal flagSignal = (FRCFlagSignal)((FRCFlagType)robot.IOTypes[ioTypeConstant]).Signals[index];
                             flagSignal.Value = value;
@@ -134,137 +157,189 @@ namespace WpfClientFanuc
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
-            }
-        }
-        private void GetSignalsIO(FRCRobot robot, FREIOTypeConstants ioTypeConstant)
-        {
-            try
-            {
+                MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 Signals.Clear();
-                if (robot.IsConnected)
-                {
-                    switch (ioTypeConstant)
-                    {
-                        //DIN DOUT
-                        case FREIOTypeConstants.frDOutType:                        
-                        case FREIOTypeConstants.frDInType:
-                            FRCDigitalIOType dioTypeIn = (FRCDigitalIOType)robot.IOTypes[ioTypeConstant];
-                            foreach (FRCDigitalIOSignal item in dioTypeIn.Signals)
-                            {
-                                item.StartMonitor(1);
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants=ioTypeConstant });
-                            }
-                            break;
-                        //UI UO
-                        case FREIOTypeConstants.frUOPInType:                       
-                        case FREIOTypeConstants.frUOPOutType:
-                            FRCUOPIOType TypeUO = (FRCUOPIOType)robot.IOTypes[ioTypeConstant];
-                            foreach (FRCUOPIOSignal item in TypeUO.Signals)
-                            {
-                                item.StartMonitor(1);
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
-                            }
-                            break;
-                        //SI SO
-                        case FREIOTypeConstants.frSOPInType:                        
-                        case FREIOTypeConstants.frSOPOutType:
-                            FRCSOPIOType TypeSO = (FRCSOPIOType)robot.IOTypes[ioTypeConstant];
-                            foreach (FRCSOPIOSignal item in TypeSO.Signals)
-                            {
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
-                            }
-                            break;
-                        //FLAG
-                        case FREIOTypeConstants.frFlagType:
-                            FRCFlagType TypeFlag = (FRCFlagType)robot.IOTypes[ioTypeConstant];
-                            foreach (FRCFlagSignal item in TypeFlag.Signals)
-                            {
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
-                            }
-                            break;
-                        //GI GO
-                        //case FREIOTypeConstants.frGPInType:
-                        //FRCGroupIOType TypeGI = (FRCGroupIOType)robot.IOTypes[ioTypeConstant];
-                        //foreach (FRCGroupIOSignal item in TypeGI.Signals)
-                        //{
-                        //    Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Value = item.Value, Comment = item.Comment });
-                        //}
-                        //break;
-                        //case FREIOTypeConstants.frGPOutType:
-                        //    FRCGroupIOType TypeGO = (FRCGroupIOType)robot.IOTypes[ioTypeConstant];
-                        //    foreach (FRCGroupIOSignal item in TypeGO.Signals)
-                        //    {
-                        //        Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Value = item.Value, Comment = item.Comment });
-                        //    }
-                        //    break;
-                        //RO RI
-                        case FREIOTypeConstants.frRDOutType:                        
-                        case FREIOTypeConstants.frRDInType:
-                            FRCRobotIOType TypeRI = (FRCRobotIOType)robot.IOTypes[ioTypeConstant];
-                            foreach (FRCRobotIOSignal item in TypeRI.Signals)
-                            {
-                                Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
-                            }
-                            break;
-                    }
-                }
+                await GetSignalsIO(robot, ioTypeConstant);
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
+        }
+
+        /// <summary>
+        /// Получение списка сигналов и передача в список Signals
+        /// </summary>
+        /// <param name="robot">экземпляр подключения к роботу</param>
+        /// <param name="ioTypeConstant">константа типа сигналов</param>
+        /// <returns>возвращаемое значение-текущая задача</returns>
+        private async Task GetSignalsIO(FRCRobot robot, FREIOTypeConstants ioTypeConstant)
+        {
+            
+            Task task = new Task(() =>
+              {
+                  Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                  {
+                      try
+                      {
+                          
+                          if (robot.IsConnected)
+                          {
+                              Signals.Clear();
+                              switch (ioTypeConstant)
+                              {
+                                  //DIN DOUT
+                                  case FREIOTypeConstants.frDOutType:
+                                  case FREIOTypeConstants.frDInType:
+                                      FRCDigitalIOType dioTypeIn = (FRCDigitalIOType)robot.IOTypes[ioTypeConstant];
+                                          foreach (FRCDigitalIOSignal item in dioTypeIn.Signals)
+                                          {
+                                          
+                                              Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, 
+                                                         Comment = item.Comment, TypeConstants = ioTypeConstant });
+
+                                          }
+                              
+                              break;
+                                  //UI UO
+                                  case FREIOTypeConstants.frUOPInType:
+                                  case FREIOTypeConstants.frUOPOutType:
+                                      FRCUOPIOType TypeUO = (FRCUOPIOType)robot.IOTypes[ioTypeConstant];
+                                      foreach (FRCUOPIOSignal item in TypeUO.Signals)
+                                      {
+                                          Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, 
+                                                        Comment = item.Comment, TypeConstants = ioTypeConstant });
+                                      }
+                                      break;
+                                  //SI SO
+                                  case FREIOTypeConstants.frSOPInType:
+                                  case FREIOTypeConstants.frSOPOutType:
+                                      FRCSOPIOType TypeSO = (FRCSOPIOType)robot.IOTypes[ioTypeConstant];
+                                      foreach (FRCSOPIOSignal item in TypeSO.Signals)
+                                      {
+                                          Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
+                                      }
+                                      break;
+                                  //FLAG
+                                  case FREIOTypeConstants.frFlagType:
+                                      FRCFlagType TypeFlag = (FRCFlagType)robot.IOTypes[ioTypeConstant];
+                                      foreach (FRCFlagSignal item in TypeFlag.Signals)
+                                      {
+                                          Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
+                                      }
+                                      break;
+                                  //RO RI
+                                  case FREIOTypeConstants.frRDOutType:
+                                  case FREIOTypeConstants.frRDInType:
+                                      FRCRobotIOType TypeRI = (FRCRobotIOType)robot.IOTypes[ioTypeConstant];
+                                      foreach (FRCRobotIOSignal item in TypeRI.Signals)
+                                      {
+                                          Signals.Add(new IOSignals { NumberIO = item.LogicalNum, Status = item.Value, Comment = item.Comment, TypeConstants = ioTypeConstant });
+                                      }
+                                      break;
+
+                              }
+
+                          }
+                      }
+                      catch (Exception e)
+                      {
+                          MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                      }
+                  }));
+
+              },TaskCreationOptions.LongRunning);
+
+            task.Start();
+            await task;
 
         }
 
+
+
+        public Task Wait()
+        {
+            Task task = Task.Run(() =>
+            {
+                //this.Dispatcher.Invoke(() =>
+                //{
+                while (true)
+                {
+
+                }
+
+                //});
+            });
+            return task;
+        }
+
+        /// <summary>
+        /// Команда, вызываемая по нажатии на кнопку "подключение "
+        /// </summary>
         public RelayCommand ConnectCommand
         {
             get
             {
                 return connectCommand ??
-                    (connectCommand = new RelayCommand(obj =>
-                    {
-                        string strIP = obj as string;
-                        string sRegexIPAddressPattern = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
-                        Regex rIPAddress = new Regex(sRegexIPAddressPattern);
-                        if (rIPAddress.Match(strIP).Success)
-                        {
-                            Connect.ConnectFanuc();
-                            robot = Connect.robot;
+                    (connectCommand = new RelayCommand(async obj =>
+                  {
 
-                            if (robot.IsConnected)
-                            {
-                                BtnTextConnect = "Подключено";
-                                //Form.BtnConnect.Content = "Подключено";
-                                GetSignalsIO(robot, FREIOTypeConstants.frDOutType);                                
-                                curPosition.GetCurPosition();
-                                
-                            }
-                        }
-                        else
+                      Connect.ConnectFanuc();
+                      robot = Connect.robot;
+
+                      if (robot.IsConnected)
+                      {
+                          BtnTextConnect = "Подключено";
+                          KeyValuePair<string, FREIOTypeConstants> selected = (KeyValuePair<string, FREIOTypeConstants>)obj;
+                          ioTypeConstant = selected.Value;
+                          //запуск асинхронного вызова метода GetSignalsIO каждую секунду
+                          //timer.Start();
+                          await GetSignalsIO(robot, selected.Value);
+                          CurPosition.GetCurPosition();
+
+                      }
+
+                  }));
+            }
+        }
+
+        /// <summary>
+        /// Команда получения текущей позиции и отображание координат в соответствующих TextBox'ах
+        /// </summary>
+        public RelayCommand CurPos
+        {
+            get
+            {
+                return curPos ??
+                    (curPos = new RelayCommand(obj =>
+                    {
+
+                        if (robot.IsConnected)
                         {
-                            MessageBox.Show("Неверный формат IP адреса", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                            CurPosition.GetCurPosition();
+
                         }
+
                     }));
             }
         }
 
-
-        public RelayCommand SelectItemTypeIO
+        /// <summary>
+        /// Поле ввода IP адреса проверяемое регулярным выражением
+        /// </summary>
+        public RelayCommand InputIPAddress
         {
             get
             {
-                return selectItemTypeIO ??
-                    (selectItemTypeIO = new RelayCommand(obj =>
+                return inputIPAddress ??
+                    (inputIPAddress = new RelayCommand(obj =>
                     {
                         try
                         {
-                            if (robot.IsConnected)
+                            string strIP = obj as string;
+                            string sRegexIPAddressPattern = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
+                            Regex rIPAddress = new Regex(sRegexIPAddressPattern);
+                            if (!rIPAddress.Match(strIP).Success)
                             {
-                                KeyValuePair<string, FREIOTypeConstants> selected = (KeyValuePair<string, FREIOTypeConstants>)obj;
-                                GetSignalsIO(robot, selected.Value);
+                                MessageBox.Show("Неверный формат IP адреса", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             }
-
                         }
                         catch (Exception)
                         {
@@ -276,6 +351,46 @@ namespace WpfClientFanuc
             }
         }
 
+
+        /// <summary>
+        /// Команда запускаемая при выборе в ComboBox типа сигнала
+        /// </summary>
+        public RelayCommand SelectItemTypeIO
+        {
+            get
+            {
+                return selectItemTypeIO ??
+                    (selectItemTypeIO = new RelayCommand(async obj =>
+                   {
+                       try
+                       {
+                           if (robot.IsConnected)
+                           {
+                               Signals.Clear();
+                               KeyValuePair<string, FREIOTypeConstants> selected = (KeyValuePair<string, FREIOTypeConstants>)obj;
+                               //await App.Current.Dispatcher.Invoke(async () =>
+                               //{
+                               
+                               ioTypeConstant = selected.Value;
+                               //запуск асинхронного вызова метода GetSignalsIO каждую секунду
+                               //timer.Start();
+                               await GetSignalsIO(robot, selected.Value);
+                               //});
+                           }
+
+                       }
+                       catch (Exception)
+                       {
+                           MessageBox.Show("Отсутствует подключение к роботу: ");
+
+                       }
+
+                   }));
+            }
+        }
+        /// <summary>
+        /// Команда выполняющая изменение сигнала, когда в ListView происходит событие IsChecked
+        /// </summary>
         public RelayCommand SetItemIO
         {
             get
@@ -287,26 +402,24 @@ namespace WpfClientFanuc
                         {
                             if (robot.IsConnected)
                             {
-                                //IOSignals selectedIO = Form.ListItemIO.SelectedItem as IOSignals;
-                                int numberIO = (int)obj;
-                                //KeyValuePair<string, FREIOTypeConstants> selectedTypeIO = (KeyValuePair<string, FREIOTypeConstants>)obj;
+                                int numberIO = (int)obj;                                
                                 foreach (var item in Signals)
                                 {
-                                    if(item.NumberIO==numberIO)
+                                    if (item.NumberIO == numberIO)
                                     {
-                                        SetSignalsIO(robot, item.TypeConstants, item.NumberIO, item.Status);
-                                        GetSignalsIO(robot, item.TypeConstants);
+                                        SetSignalsIO(robot, item.TypeConstants, item.NumberIO, item.Status);                                        
                                         break;
                                     }
                                 }
-                                //SetSignalsIO(robot, selectedTypeIO.Value, selectedIO.NumberIO, !selectedIO.Status);
-                                //GetSignalsIO(robot, selectedTypeIO.Value);
                             }
-
                         }
-                        catch (Exception)
+
+
+                        catch (Exception e)
                         {
-                            MessageBox.Show("Отсутствует подключение к роботу: ");
+
+                            MessageBox.Show("Отсутствует подключение к роботу " + e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            
                         }
 
                     }));

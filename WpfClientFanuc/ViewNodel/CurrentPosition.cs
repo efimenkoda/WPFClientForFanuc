@@ -9,11 +9,15 @@ using System.Windows;
 
 namespace WpfClientFanuc
 {
-    public class CurrentPosition: INotifyPropertyChanged
+    public class CurrentPosition : INotifyPropertyChanged
     {
         private FRCRobot robot;
+        /// <summary>
+        /// Свойства, которые передаются в TextBox'ы
+        /// </summary>
         private double x;
-        public double X { 
+        public double X
+        {
             get
             {
                 return x;
@@ -97,15 +101,36 @@ namespace WpfClientFanuc
         {
             this.robot = robot;
         }
-
+        /// <summary>
+        /// текущая позиция робота
+        /// </summary>
+        /// 
         public void GetCurPosition()
         {
+
+            //получение текущей позиции робота
+            FRCCurPosition curPositions = robot.CurPosition;
+            FRCCurGroupPosition groupCurPosition = curPositions.Group[1, FRECurPositionConstants.frJointDisplayType];
+            FRCXyzWpr xyzWprCur = groupCurPosition.Formats[FRETypeCodeConstants.frExtXyzWpr];
+
+            X = Math.Round(xyzWprCur.X, 3);
+            Y = Math.Round(xyzWprCur.Y, 3);
+            Z = Math.Round(xyzWprCur.Z, 3);
+            P = Math.Round(xyzWprCur.P, 3);
+            R = Math.Round(xyzWprCur.R, 3);
+            W = Math.Round(xyzWprCur.W, 3);
+
+        }
+
+        public void GetSysPosition()
+        {
+            //теекущие системные координаты
             if (robot.IsConnected)
             {
-                //FRCSysPositions sysPositions = robot.RegPositions;
-                //FRCSysPosition sysPosition = sysPositions[1];
-                //FRCSysGroupPosition sysGroupPosition = sysPosition.Group[1];
-                //FRCXyzWpr xyzWprSys = sysGroupPosition.Formats[FRETypeCodeConstants.frXyzWpr];                
+                FRCSysPositions sysPositions = robot.RegPositions;
+                FRCSysPosition sysPosition = sysPositions[1];
+                FRCSysGroupPosition sysGroupPosition = sysPosition.Group[1];
+                FRCXyzWpr xyzWprSys = sysGroupPosition.Formats[FRETypeCodeConstants.frXyzWpr];
 
                 //X = xyzWprSys.X.ToString();
                 //Y = xyzWprSys.Y.ToString();
@@ -113,19 +138,8 @@ namespace WpfClientFanuc
                 //P = xyzWprSys.P.ToString();
                 //R = xyzWprSys.R.ToString();
                 //W = xyzWprSys.W.ToString();
-
-                FRCCurPosition curPositions = robot.CurPosition;
-                FRCCurGroupPosition groupCurPosition = curPositions.Group[1,FRECurPositionConstants.frJointDisplayType];
-                FRCXyzWpr xyzWprCur = groupCurPosition.Formats[FRETypeCodeConstants.frExtXyzWpr];
-
-                X = Math.Round(xyzWprCur.X,3);
-                Y = Math.Round(xyzWprCur.Y,3);
-                Z = Math.Round(xyzWprCur.Z, 3);
-                P = Math.Round(xyzWprCur.P, 3);
-                R = Math.Round(xyzWprCur.R, 3);
-                W = Math.Round(xyzWprCur.W, 3);
-                
             }
         }
     }
 }
+

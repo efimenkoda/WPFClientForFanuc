@@ -31,29 +31,41 @@
             <GroupBox Header="Подключение к роботу" Padding="5">
                 <StackPanel Orientation="Horizontal"  Width="auto" >
                     <Label>IP адрес робота:</Label>
-                    <TextBox x:Name="TextIPaddress" Text="{Binding Connect.IPaddress}" Width="100" Margin="5,5,5,5"/>
+
+                    <TextBox x:Name="TextIPaddress"  Text="{Binding Connect.IPaddress}" Width="100" Margin="5,5,5,5" >
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="LostFocus">
+                                <i:InvokeCommandAction Command="{Binding InputIPAddress}" 
+                                                       CommandParameter="{Binding ElementName=TextIPaddress, Path=Text}">
+                                    
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+
+                        </i:Interaction.Triggers>
+                    </TextBox>
                     <Button x:Name="BtnConnect"  Content="{Binding BtnTextConnect}" Command="{Binding ConnectCommand}" 
-                            CommandParameter="{Binding ElementName=TextIPaddress, Path=Text}" Margin="5,5,5,5"/>
+                            CommandParameter="{Binding ElementName=TypeIO,Path=SelectedValue}" Margin="5,5,5,5"/>
                 </StackPanel>
             </GroupBox>
             <GroupBox Header="Текущие координаты"  Padding="5">
                 <StackPanel Orientation="Vertical"  >
                     <WrapPanel Margin="5">
                         <Label>X:</Label>
-                        <TextBox x:Name="Xcoor" Width="60" Text="{Binding curPosition.X}" ></TextBox>
+                        <TextBox x:Name="Xcoor" Width="60" Text="{Binding CurPosition.X}" ></TextBox>
                         <Label>Y:</Label>
-                        <TextBox x:Name="Ycoor" Width="60" Text="{Binding curPosition.Y}"></TextBox>
-                        <Label>Z:</Label>
-                        <TextBox x:Name="Zcoor" Width="60" Text="{Binding curPosition.Z}"></TextBox>
+                        <TextBox x:Name="Ycoor" Width="60" Text="{Binding CurPosition.Y}" ></TextBox>
+                        <Label Width="24" >Z:</Label>
+                        <TextBox x:Name="Zcoor" Width="60" Text="{Binding CurPosition.Z}"></TextBox>
                     </WrapPanel>
                     <WrapPanel Margin="5">
                         <Label>R:</Label>
-                        <TextBox x:Name="Rcoor" Width="60" Text="{Binding curPosition.R}"></TextBox>
+                        <TextBox x:Name="Rcoor" Width="60" Text="{Binding CurPosition.R}"></TextBox>
                         <Label>P:</Label>
-                        <TextBox x:Name="Pcoor" Width="60" Text="{Binding curPosition.P}"></TextBox>
+                        <TextBox x:Name="Pcoor" Width="60" Text="{Binding CurPosition.P}"></TextBox>
                         <Label>W:</Label>
-                        <TextBox x:Name="Wcoor" Width="60" Text="{Binding curPosition.W}"></TextBox>
+                        <TextBox x:Name="Wcoor" Width="60" Text="{Binding CurPosition.W}"></TextBox>
                     </WrapPanel>
+                    <Button Content="Обновить координаты" VerticalContentAlignment="Center" Command="{Binding CurPos}" Margin="5,5,235,5"></Button>
                 </StackPanel>
             </GroupBox>            
         </StackPanel>
